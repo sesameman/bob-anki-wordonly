@@ -15,13 +15,25 @@ export function supportLanguages(): Bob.supportLanguages {
 // @ts-ignore
 global.supportLanguages = supportLanguages;
 
+// // 判断是否是单个单词
+// function isWord(text) {
+//   // 使用正则表达式匹配单词
+//   const wordRegex = /^[A-Za-z]+$/;
+  
+//   // 判断text是否只包含一个单词
+//   return text.trim().split(/\s+/).every(word => wordRegex.test(word));
+// }
+
 // https://ripperhe.gitee.io/bob/#/plugin/quickstart/translate
 export function translate(query: Bob.TranslateQuery, completion: Bob.Completion) {
-  const { text = '', detectFrom, detectTo } = query;
-  const str = formatString(text);
-  const params = { from: detectFrom, to: detectTo, token: Bob.api.getOption('token') };
-
-  // 翻译
+  const wordRegex = /^[A-Za-z]+$/;
+  let testwd = query.trim().split(/\s+/).every(word => wordRegex.test(word))
+  // 测试是否是单词
+  if (testwd === true) {
+    const { text = '', detectFrom, detectTo } = query;
+    const str = formatString(text);
+    const params = { from: detectFrom, to: detectTo, token: Bob.api.getOption('token') };
+      // 翻译
   let res = _translate(str, params);
   res
     .then((result) => {
@@ -63,6 +75,9 @@ export function translate(query: Bob.TranslateQuery, completion: Bob.Completion)
       if (error?.type) return completion({ error });
       completion({ error: Bob.util.error('api', '插件出错', error) });
     })
+  } else {
+    Bob.api.$log.info('不是单词');    // 如果a为false则输出"退出"
+  }
 }
 
 
